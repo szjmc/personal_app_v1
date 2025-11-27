@@ -1,0 +1,48 @@
+@use './variables.scss' as *;
+@use './mixins.scss' as *;
+
+// 引入全局样式
+@use './globals.scss' as *;
+
+// Element Plus 自定义样式
+.el-card {
+  @include glass-effect;
+  border: none;
+  
+  .el-card__header {
+    background: rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--el-text-color-primary);
+  }
+}
+
+.el-button {
+  &.el-button--primary {
+    background: linear-gradient(135deg, var(--el-color-primary), var(--el-color-primary-light-3));
+    border: none;
+    
+    &:hover {
+      background: linear-gradient(135deg, var(--el-color-primary-light-3), var(--el-color-primary-light-5));
+    }
+  }
+}
+
+// 自定义滚动条
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+}

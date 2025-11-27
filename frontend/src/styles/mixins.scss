@@ -1,0 +1,94 @@
+@use './variables.scss' as *;
+
+// 混入（Mixins）
+
+// 毛玻璃效果
+@mixin glass-effect {
+  background: $glass-bg;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid $glass-border;
+  box-shadow: $shadow-md;
+}
+
+// 渐变文字
+@mixin gradient-text {
+  background: $bg-gradient;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// 悬浮卡片效果
+@mixin hover-card {
+  transition: all $transition-normal ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-xl;
+  }
+}
+
+// 响应式断点
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == sm {
+    @media (min-width: $breakpoint-sm) { @content; }
+  }
+  @if $breakpoint == md {
+    @media (min-width: $breakpoint-md) { @content; }
+  }
+  @if $breakpoint == lg {
+    @media (min-width: $breakpoint-lg) { @content; }
+  }
+  @if $breakpoint == xl {
+    @media (min-width: $breakpoint-xl) { @content; }
+  }
+}
+
+// 按钮样式
+@mixin button-variant($bg-color, $text-color: white) {
+  background-color: $bg-color;
+  color: $text-color;
+  border: none;
+  transition: all $transition-fast ease;
+  
+  &:hover {
+    background-color: lighten($bg-color, 10%);
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// 加载动画
+@mixin loading-spinner {
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  animation: spin 1s linear infinite;
+}
+
+// 淡入动画
+@mixin fade-in($duration: $transition-normal) {
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  animation: fadeIn $duration ease-out;
+}
+
+// 滑入动画
+@mixin slide-in($direction: left, $duration: $transition-normal) {
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  
+  animation: slideIn $duration ease-out;
+}
