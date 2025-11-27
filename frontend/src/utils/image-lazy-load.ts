@@ -3,6 +3,8 @@
  * 支持 Intersection Observer、渐进式加载、错误处理等功能
  */
 
+import { h } from 'vue'
+
 interface ImageLazyLoadOptions {
   root?: HTMLElement | null
   rootMargin?: string

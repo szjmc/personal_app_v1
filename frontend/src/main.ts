@@ -11,7 +11,7 @@ app.use(createPinia())
 app.use(router)
 
 // 全局错误处理
-app.config.errorHandler = (error, vm, info) => {
+app.config.errorHandler = (error) => {
   console.error('Vue Error:', error)
 }
 

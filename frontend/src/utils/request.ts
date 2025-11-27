@@ -5,9 +5,21 @@ import axios, {
   AxiosError,
   InternalAxiosRequestConfig
 } from 'axios'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 import router from '@/router'
+
+// 扩展AxiosRequestConfig接口以支持metadata
+interface InternalAxiosRequestConfigWithMetadata extends InternalAxiosRequestConfig {
+  metadata?: { startTime: number }
+}
+
+// 扩展AxiosError接口以支持自定义取消属性
+interface AxiosErrorWithCancel extends AxiosError {
+  __CANCEL__?: boolean
+  cachedData?: any
+  duplicate?: boolean
+}
 
 // 请求配置接口
 interface RequestConfig extends AxiosRequestConfig {
@@ -15,14 +27,16 @@ interface RequestConfig extends AxiosRequestConfig {
   showError?: boolean
   useCache?: boolean
   cacheTime?: number
+  retry?: boolean
 }
 
 // 响应数据接口
-interface ApiResponse<T = any> {
-  code: number
-  data: T
-  message: string
-  timestamp: number
+interface ApiResponseData {
+  code?: number
+  data?: any
+  message?: string
+  timestamp?: number
+  detail?: Array<{ msg: string }>
 }
 
 // 缓存管理
@@ -171,16 +185,17 @@ const createAxiosInstance = (): AxiosInstance => {
   instance.interceptors.request.use(
     (config) => {
       const userStore = useUserStore()
+      const configWithMetadata = config as InternalAxiosRequestConfigWithMetadata
       
       // 添加认证token
       if (userStore.token) {
-        config.headers.Authorization = `Bearer ${userStore.token}`
+        configWithMetadata.headers.Authorization = `Bearer ${userStore.token}`
       }
       
       // 处理缓存
-      const requestConfig = config as RequestConfig
-      if (requestConfig.useCache && config.method?.toLowerCase() === 'get') {
-        const cacheKey = `${config.baseURL}${config.url}:${JSON.stringify(config.params)}`
+      const requestConfig = configWithMetadata as RequestConfig
+      if (requestConfig.useCache && configWithMetadata.method?.toLowerCase() === 'get') {
+        const cacheKey = `${configWithMetadata.baseURL}${configWithMetadata.url}:${JSON.stringify(configWithMetadata.params)}`
         const cachedData = requestCache.get(cacheKey)
         
         if (cachedData) {
@@ -188,25 +203,25 @@ const createAxiosInstance = (): AxiosInstance => {
           return Promise.reject({
             __CANCEL__: true,
             cachedData,
-            config
-          })
+            config: configWithMetadata
+          } as AxiosErrorWithCancel)
         }
       }
       
       // 检查重复请求
-      const existingRequest = requestQueue.add(config)
+      const existingRequest = requestQueue.add(configWithMetadata)
       if (existingRequest) {
         return Promise.reject({
           __CANCEL__: true,
           duplicate: true,
-          config
-        })
+          config: configWithMetadata
+        } as AxiosErrorWithCancel)
       }
       
       // 添加请求时间戳
-      config.metadata = { startTime: Date.now() }
+      configWithMetadata.metadata = { startTime: Date.now() }
       
-      return config
+      return configWithMetadata
     },
     (error) => {
       return Promise.reject(error)
@@ -216,24 +231,25 @@ const createAxiosInstance = (): AxiosInstance => {
   // 响应拦截器
   instance.interceptors.response.use(
     (response: AxiosResponse) => {
-      const requestConfig = response.config as RequestConfig
+      const configWithMetadata = response.config as InternalAxiosRequestConfigWithMetadata
+      const requestConfig = configWithMetadata as RequestConfig
       
       // 计算请求耗时
       const endTime = Date.now()
-      const startTime = response.config.metadata?.startTime || endTime
+      const startTime = configWithMetadata.metadata?.startTime || endTime
       const duration = endTime - startTime
       
       // 添加调试信息
       if (import.meta.env.DEV) {
-        console.log(`API Request: ${response.config.method?.toUpperCase()} ${response.config.url}`, {
+        console.log(`API Request: ${configWithMetadata.method?.toUpperCase()} ${configWithMetadata.url}`, {
           duration: `${duration}ms`,
           status: response.status
         })
       }
       
       // 处理缓存
-      if (requestConfig.useCache && response.config.method?.toLowerCase() === 'get') {
-        const cacheKey = `${response.config.baseURL}${response.config.url}:${JSON.stringify(response.config.params)}`
+      if (requestConfig.useCache && configWithMetadata.method?.toLowerCase() === 'get') {
+        const cacheKey = `${configWithMetadata.baseURL}${configWithMetadata.url}:${JSON.stringify(configWithMetadata.params)}`
         const cacheTime = requestConfig.cacheTime || 300000 // 默认5分钟
         requestCache.set(cacheKey, response.data, cacheTime)
       }
@@ -255,7 +271,7 @@ const createAxiosInstance = (): AxiosInstance => {
       
       return response
     },
-    async (error: AxiosError) => {
+    async (error: AxiosErrorWithCancel) => {
       const requestConfig = error.config as RequestConfig
       
       // 处理被取消的请求
@@ -285,6 +301,7 @@ const createAxiosInstance = (): AxiosInstance => {
       }
       
       const { status, data } = error.response
+      const errorData = data as ApiResponseData
       
       // 处理特定状态码
       switch (status) {
@@ -313,14 +330,14 @@ const createAxiosInstance = (): AxiosInstance => {
           
         case 422:
           // 表单验证错误，显示具体错误信息
-          if (data?.detail && Array.isArray(data.detail)) {
-            const errors = data.detail.map((item: any) => item.msg).join('; ')
+          if (errorData.detail && Array.isArray(errorData.detail)) {
+            const errors = errorData.detail.map((item) => item.msg).join('; ')
             if (requestConfig.showError !== false) {
               ElMessage.error(errors)
             }
           } else {
             if (requestConfig.showError !== false) {
-              ElMessage.error(data?.message || '请求参数有误')
+              ElMessage.error(errorData.message || '请求参数有误')
             }
           }
           break
@@ -339,7 +356,7 @@ const createAxiosInstance = (): AxiosInstance => {
           
         default:
           if (requestConfig.showError !== false) {
-            ElMessage.error(data?.message || `请求失败 (${status})`)
+            ElMessage.error(errorData.message || `请求失败 (${status})`)
           }
       }
       

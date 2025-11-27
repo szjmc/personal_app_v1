@@ -38,7 +38,7 @@ export function useStorage<T>(
         console.warn(`Failed to save value for key "${key}":`, error)
         
         // 如果存储空间不足，尝试清理旧数据
-        if (error.name === 'QuotaExceededError') {
+        if ((error as Error).name === 'QuotaExceededError') {
           clearExpiredStorage(storage)
           // 重试一次
           try {

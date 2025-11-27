@@ -1,4 +1,4 @@
-import { ref, reactive } from 'vue'
+import { reactive } from 'vue'
 import { ElLoading } from 'element-plus'
 import type { LoadingInstance } from 'element-plus/es/components/loading/src/loading'
 
@@ -139,7 +139,9 @@ export class DataPreloader {
     // 限制缓存大小
     if (this.cache.size >= this.config.cacheSize) {
       const firstKey = this.cache.keys().next().value
-      this.cache.delete(firstKey)
+      if (firstKey) {
+        this.cache.delete(firstKey)
+      }
     }
     
     this.cache.set(task.cacheKey, {
@@ -464,17 +466,16 @@ export const usePreloader = () => {
   })
   
   // 更新状态
-  const updateStatus = () => {
-    preloaderStatus.tasks = preloader.getAllStatus()
-    const total = preloaderStatus.tasks.length
-    const completed = preloaderStatus.tasks.filter(t => t.status === 'completed').length
-    const failed = preloaderStatus.tasks.filter(t => t.status === 'failed').length
-    
-    preloaderStatus.progress = total > 0 ? (completed / total) * 100 : 0
-    preloaderStatus.isRunning = preloaderStatus.tasks.some(t => 
-      t.status === 'running' || t.status === 'pending'
-    )
-  }
+    const updateStatus = () => {
+      preloaderStatus.tasks = preloader.getAllStatus()
+      const total = preloaderStatus.tasks.length
+      const completed = preloaderStatus.tasks.filter(t => t.status === 'completed').length
+      
+      preloaderStatus.progress = total > 0 ? (completed / total) * 100 : 0
+      preloaderStatus.isRunning = preloaderStatus.tasks.some(t => 
+        t.status === 'running' || t.status === 'pending'
+      )
+    }
   
   // 添加任务
   const addTask = (task: PreloadTask) => {

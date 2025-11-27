@@ -31,7 +31,7 @@ class DataPreloader {
   private preloadQueue: Map<string, PreloadTask> = new Map()
   private preloadedData: Map<string, { data: any; timestamp: number; expires: number }> = new Map()
   private isPreloading = false
-  private storage = useStorage('data-cache', {}, localStorage)
+  private storage = useStorage<Record<string, any>>('data-cache', {}, localStorage)
   private userPatterns: Map<string, any> = new Map()
 
   constructor() {
@@ -43,7 +43,7 @@ class DataPreloader {
    * 恢复缓存数据
    */
   private restoreCachedData() {
-    const cached = this.storage.get()
+    const cached = this.storage.value
     Object.entries(cached).forEach(([key, entry]: [string, any]) => {
       if (entry.expires > Date.now()) {
         this.preloadedData.set(key, {
@@ -129,7 +129,7 @@ class DataPreloader {
   /**
    * 基于时间模式的预加载
    */
-  private preloadByTimePattern(hour: number, timePattern: any) {
+  private preloadByTimePattern(hour: number, _timePattern: any) {
     // 工作时间：预加载任务和项目管理
     if (hour >= 9 && hour <= 18) {
       this.addPreloadConfig({
@@ -334,13 +334,14 @@ class DataPreloader {
    * 保存到本地存储
    */
   private saveToStorage(key: string, data: any, expires: number) {
-    const cached = this.storage.get()
-    cached[key] = {
+    // 创建一个新对象，避免直接修改响应式对象的索引
+    const newCache: Record<string, any> = { ...this.storage.value }
+    newCache[key] = {
       data,
       timestamp: Date.now(),
       expires
     }
-    this.storage.set(cached)
+    this.storage.set(newCache)
   }
 
   /**

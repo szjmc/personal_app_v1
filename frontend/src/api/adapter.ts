@@ -70,11 +70,12 @@ export class ApiAdapter<T = any> {
   
   // 通用DELETE请求
   async delete(
-    endpoint: string = '', 
+    endpoint: string | number = '', 
     options: Record<string, any> = {}
   ): Promise<any> {
     try {
-      const response = await http.delete<T>(`${this.baseUrl}${endpoint}`, options)
+      const endpointStr = typeof endpoint === 'number' ? `${endpoint}/` : endpoint
+      const response = await http.delete<T>(`${this.baseUrl}${endpointStr}`, options)
       return response.data
     } catch (error: any) {
       throw this.handleError(error)
@@ -212,7 +213,7 @@ export class CrudAdapter<T = any> extends ApiAdapter<T> {
     id: string | number,
     options: Record<string, any> = {}
   ): Promise<void> {
-    return this.delete(`${id}/`, options)
+    return super.delete(`${id}/`, options)
   }
   
   // 批量操作
@@ -285,8 +286,8 @@ export class CachedAdapter<T = any> extends CrudAdapter<T> {
     return this.clearCacheAndExecute('patch', endpoint, data, options)
   }
   
-  async delete(endpoint: string = '', options?: Record<string, any>): Promise<any> {
-    return this.clearCacheAndExecute('delete', endpoint, undefined, options)
+  async delete(id: string | number, options?: Record<string, any>): Promise<void> {
+    return this.clearCacheAndExecute('delete', `${id}/`, undefined, options)
   }
   
   // 清除缓存

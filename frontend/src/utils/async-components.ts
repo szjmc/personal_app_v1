@@ -4,7 +4,7 @@
  */
 
 import { defineAsyncComponent, type Component } from 'vue'
-import { ElLoading, ElMessage } from 'element-plus'
+import { ElMessage } from 'element-plus'
 
 interface AsyncComponentOptions {
   loadingComponent?: Component
@@ -16,15 +16,7 @@ interface AsyncComponentOptions {
   preloaded?: boolean
 }
 
-interface LoadingContext {
-  isLoading: boolean
-  error: Error | null
-  retry: () => void
-}
-
 class AsyncComponentManager {
-  private loadingComponents: Map<string, Component> = new Map()
-  private errorComponents: Map<string, Component> = new Map()
   private retryAttempts: Map<string, number> = new Map()
 
   /**
@@ -70,7 +62,7 @@ class AsyncComponentManager {
           <button @click="retry" style="padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer;">重试</button>
         </div>
       `,
-      setup(props: any, { emit }: any) {
+      setup(_props: any, { emit }: any) {
         const retry = () => emit('retry')
         return { retry }
       }
@@ -239,7 +231,7 @@ class AsyncComponentManager {
   public createLazyLoadDirective() {
     return {
       mounted(el: HTMLElement, binding: any) {
-        const { component, options = {} } = binding.value
+        const { component } = binding.value
         
         if (!component) {
           console.warn('Lazy load directive requires component')

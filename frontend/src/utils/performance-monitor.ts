@@ -58,12 +58,29 @@ interface PerformanceEntry {
   metadata?: any
 }
 
+// 性能评分类型
+export interface PerformanceScore {
+  overall: number
+  pageLoad: number
+  api: number
+  interaction: number
+  resources: number
+}
+
+// 性能报告类型
+export interface PerformanceReport {
+  timestamp: number
+  duration: number
+  metrics: PerformanceMetrics
+  scores: PerformanceScore
+  recommendations: string[]
+}
+
 class PerformanceMonitor {
   private entries: PerformanceEntry[] = []
   private observers: Map<string, PerformanceObserver> = new Map()
   private metrics: PerformanceMetrics
   private startTime: number
-  private isRecording = false
   private thresholds = {
     apiSlow: 2000, // 2秒
     interactionSlow: 100, // 100ms
@@ -142,8 +159,8 @@ class PerformanceMonitor {
       entries.forEach(entry => {
         if (entry.entryType === 'navigation') {
           const navEntry = entry as PerformanceNavigationTiming
-          this.metrics.pageLoad.domContentLoaded = navEntry.domContentLoadedEventEnd - navEntry.navigationStart
-          this.metrics.pageLoad.loadComplete = navEntry.loadEventEnd - navEntry.navigationStart
+          this.metrics.pageLoad.domContentLoaded = navEntry.domContentLoadedEventEnd - navEntry.startTime
+          this.metrics.pageLoad.loadComplete = navEntry.loadEventEnd - navEntry.startTime
         }
       })
     })
@@ -417,7 +434,6 @@ class PerformanceMonitor {
    * 开始记录
    */
   public startRecording(): void {
-    this.isRecording = true
     this.startTime = Date.now()
   }
 
@@ -425,7 +441,7 @@ class PerformanceMonitor {
    * 停止记录
    */
   public stopRecording(): void {
-    this.isRecording = false
+    // 停止记录逻辑
   }
 
   /**
@@ -439,13 +455,7 @@ class PerformanceMonitor {
   /**
    * 获取性能评分
    */
-  public getPerformanceScore(): {
-    overall: number
-    pageLoad: number
-    api: number
-    interaction: number
-    resources: number
-  } {
+  public getPerformanceScore(): PerformanceScore {
     const scores = {
       pageLoad: this.calculatePageLoadScore(),
       api: this.calculateApiScore(),
@@ -545,13 +555,7 @@ class PerformanceMonitor {
   /**
    * 生成性能报告
    */
-  public generateReport(): {
-    timestamp: number
-    duration: number
-    metrics: PerformanceMetrics
-    scores: ReturnType<typeof this.getPerformanceScore>
-    recommendations: string[]
-  } {
+  public generateReport(): PerformanceReport {
     const now = Date.now()
     const duration = now - this.startTime
     const metrics = this.getMetrics()
@@ -621,8 +625,8 @@ class PerformanceMonitor {
   public exportData(): {
     entries: PerformanceEntry[]
     metrics: PerformanceMetrics
-    scores: ReturnType<typeof this.getPerformanceScore>
-    report: ReturnType<typeof this.generateReport>
+    scores: PerformanceScore
+    report: PerformanceReport
   } {
     return {
       entries: [...this.entries],

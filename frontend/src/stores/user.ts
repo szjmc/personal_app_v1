@@ -21,11 +21,11 @@ export const useUserStore = defineStore('user', () => {
       loading.value = true
       const response = await userApi.login(credentials)
       
-      token.value = response.access
-      user.value = response.user
+      token.value = response.data.access
+      user.value = response.data.user
       
-      localStorage.setItem('token', response.access)
-      localStorage.setItem('refreshToken', response.refresh)
+      localStorage.setItem('token', response.data.access)
+      localStorage.setItem('refreshToken', response.data.refresh)
       
       ElMessage.success('登录成功')
       router.push({ name: 'Dashboard' })
@@ -44,11 +44,11 @@ export const useUserStore = defineStore('user', () => {
       loading.value = true
       const response = await userApi.register(userData)
       
-      token.value = response.access
-      user.value = response.user
+      token.value = response.data.access
+      user.value = response.data.user
       
-      localStorage.setItem('token', response.access)
-      localStorage.setItem('refreshToken', response.refresh)
+      localStorage.setItem('token', response.data.access)
+      localStorage.setItem('refreshToken', response.data.refresh)
       
       ElMessage.success('注册成功')
       router.push({ name: 'Dashboard' })

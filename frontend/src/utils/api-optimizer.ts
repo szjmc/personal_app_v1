@@ -4,7 +4,6 @@
  */
 
 import { http } from './request'
-import { dataPreloader } from './data-preloader'
 
 interface RequestConfig {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
@@ -217,8 +216,6 @@ class ApiOptimizer {
     const { method = 'GET', url, params, data, timeout = 10000 } = config
 
     const requestConfig: any = {
-      method,
-      url,
       timeout,
       headers: {
         'X-Request-ID': this.generateRequestId(),
@@ -230,11 +227,20 @@ class ApiOptimizer {
       requestConfig.params = params
     }
 
-    if (data) {
-      requestConfig.data = data
+    switch (method) {
+      case 'GET':
+        return http.get(url, requestConfig)
+      case 'POST':
+        return http.post(url, data, requestConfig)
+      case 'PUT':
+        return http.put(url, data, requestConfig)
+      case 'DELETE':
+        return http.delete(url, requestConfig)
+      case 'PATCH':
+        return http.patch(url, data, requestConfig)
+      default:
+        return http.get(url, requestConfig)
     }
-
-    return http(requestConfig)
   }
 
   /**
@@ -356,7 +362,7 @@ class ApiOptimizer {
    * 预加载请求
    */
   public async preloadRequest(config: RequestConfig): Promise<void> {
-    const preloadConfig = { ...config, priority: 'low' }
+    const preloadConfig: RequestConfig = { ...config, priority: 'low' }
     
     if (!this.networkStatus.online) {
       return

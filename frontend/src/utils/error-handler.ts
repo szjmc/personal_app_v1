@@ -1,7 +1,7 @@
 import { ref, defineComponent, h, getCurrentInstance, onErrorCaptured } from 'vue'
 import { ElMessage, ElNotification, ElMessageBox } from 'element-plus'
 import router from '@/router'
-import { useAuthStore } from '@/stores/auth'
+import { useUserStore } from '@/stores/user'
 
 // 错误类型定义
 export enum ErrorType {
@@ -262,8 +262,8 @@ export class ErrorHandler {
   // 认证错误处理
   private handleAuthenticationError(error: AppError): void {
     // 清除登录状态
-    const authStore = useAuthStore()
-    authStore.logout()
+    const userStore = useUserStore()
+    userStore.logout()
     
     // 跳转到登录页
     if (router.currentRoute.value.path !== '/login') {
@@ -328,12 +328,12 @@ export class ErrorHandler {
   }
   
   // 未知错误处理
-  private handleUnknownError(error: AppError): void {
+  private handleUnknownError(_error: AppError): void {
     ElMessage.error('发生未知错误，请稍后再试')
   }
   
   // 显示重试对话框
-  private showRetryDialog(error: AppError): void {
+  private showRetryDialog(_error: AppError): void {
     ElMessageBox.confirm(
       '网络连接失败，是否重试？',
       '连接错误',
