@@ -42,12 +42,12 @@ export const ocrApi = {
       count: number
       next: string
       previous: string
-    }>('/api/ocr/', { params })
+    }>('/ocr/', { params })
   },
 
   // 上传图片进行OCR识别
   uploadImage(formData: FormData) {
-    return request.post<OCRImage>('/api/ocr/', formData, {
+    return request.post<OCRImage>('/ocr/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -56,27 +56,27 @@ export const ocrApi = {
 
   // 获取单个OCR图片详情
   getImage(id: string) {
-    return request.get<OCRImage>(`/api/ocr/${id}/`)
+    return request.get<OCRImage>(`/ocr/${id}/`)
   },
 
   // 更新OCR图片信息
   updateImage(id: string, data: Partial<OCRImage>) {
-    return request.patch<OCRImage>(`/api/ocr/${id}/`, data)
+    return request.patch<OCRImage>(`/ocr/${id}/`, data)
   },
 
   // 删除OCR图片
   deleteImage(id: string) {
-    return request.delete(`/api/ocr/${id}/`)
+    return request.delete(`/ocr/${id}/`)
   },
 
   // 手动重新处理OCR识别
   processImage(id: string) {
-    return request.post<OCRImage>(`/api/ocr/${id}/process/`)
+    return request.post<OCRImage>(`/ocr/${id}/process/`)
   },
 
   // 导出OCR识别文本
   exportText(id: string, format: 'txt' | 'json' = 'txt') {
-    return request.get(`/api/ocr/${id}/export/?format=${format}`, {
+    return request.get(`/ocr/${id}/export/?format=${format}`, {
       responseType: 'blob'
     })
   },
@@ -95,7 +95,7 @@ export const ocrApi = {
         id: string
         error: string
       }>
-    }>('/api/ocr/batch-process/', { image_ids: imageIds })
+    }>('/ocr/batch-process/', { image_ids: imageIds })
   },
 
   // 获取OCR统计信息
@@ -106,6 +106,6 @@ export const ocrApi = {
       processing: number
       failed: number
       pending: number
-    }>('/api/ocr/statistics/')
+    }>('/ocr/statistics/')
   }
 }

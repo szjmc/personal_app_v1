@@ -24,31 +24,31 @@ export interface TrackingInfo {
 export const expressApi = {
   // 获取快递列表
   getList: (params?: { status?: string; courier?: string }) =>
-    request.get('/api/life/express/', { params }),
+    request.get('/life/express/', { params }),
   
   // 添加快递
   create: (data: Partial<Express>) =>
-    request.post('/api/life/express/', data),
+    request.post('/life/express/', data),
   
   // 更新快递信息
   update: (id: number, data: Partial<Express>) =>
-    request.put(`/api/life/express/${id}/`, data),
+    request.put(`/life/express/${id}/`, data),
   
   // 删除快递
   delete: (id: number) =>
-    request.delete(`/api/life/express/${id}/`),
+    request.delete(`/life/express/${id}/`),
   
   // 获取物流详情
   getTracking: (id: number) =>
-    request.get(`/api/life/express/${id}/tracking/`),
+    request.get(`/life/express/${id}/tracking/`),
   
   // 刷新物流信息
   refreshTracking: (id: number) =>
-    request.post(`/api/life/express/${id}/refresh-tracking/`),
+    request.post(`/life/express/${id}/refresh-tracking/`),
   
   // 搜索快递公司
   searchCourier: (query: string) =>
-    request.get('/api/life/express/search-courier/', { params: { query } })
+    request.get('/life/express/search-courier/', { params: { query } })
 }
 
 // 习惯打卡相关接口
@@ -90,39 +90,39 @@ export interface HabitStats {
 export const habitApi = {
   // 获取习惯列表
   getList: () =>
-    request.get('/api/life/habits/'),
+    request.get('/life/habits/'),
   
   // 创建习惯
   create: (data: Partial<Habit>) =>
-    request.post('/api/life/habits/', data),
+    request.post('/life/habits/', data),
   
   // 更新习惯
   update: (id: number, data: Partial<Habit>) =>
-    request.put(`/api/life/habits/${id}/`, data),
+    request.put(`/life/habits/${id}/`, data),
   
   // 删除习惯
   delete: (id: number) =>
-    request.delete(`/api/life/habits/${id}/`),
+    request.delete(`/life/habits/${id}/`),
   
   // 获取打卡记录
   getRecords: (habitId: number, params?: { start_date?: string; end_date?: string }) =>
-    request.get(`/api/life/habits/${habitId}/records/`, { params }),
+    request.get(`/life/habits/${habitId}/records/`, { params }),
   
   // 添加打卡记录
   checkIn: (habitId: number, data: { date: string; notes?: string }) =>
-    request.post(`/api/life/habits/${habitId}/check-in/`, data),
+    request.post(`/life/habits/${habitId}/check-in/`, data),
   
   // 取消打卡
   cancelCheckIn: (habitId: number, date: string) =>
-    request.delete(`/api/life/habits/${habitId}/check-in/?date=${date}`),
+    request.delete(`/life/habits/${habitId}/check-in/?date=${date}`),
   
   // 获取习惯统计
   getStats: (habitId: number) =>
-    request.get(`/api/life/habits/${habitId}/stats/`),
+    request.get(`/life/habits/${habitId}/stats/`),
   
   // 获取今日打卡状态
   getTodayStatus: () =>
-    request.get('/api/life/habits/today-status/')
+    request.get('/life/habits/today-status/')
 }
 
 // 财务记录相关接口
@@ -179,42 +179,42 @@ export const financeApi = {
     end_date?: string;
     page?: number;
   }) =>
-    request.get('/api/life/transactions/', { params }),
+    request.get('/life/transactions/', { params }),
   
   // 创建交易记录
   create: (data: Partial<Transaction>) =>
-    request.post('/api/life/transactions/', data),
+    request.post('/life/transactions/', data),
   
   // 更新交易记录
   update: (id: number, data: Partial<Transaction>) =>
-    request.put(`/api/life/transactions/${id}/`, data),
+    request.put(`/life/transactions/${id}/`, data),
   
   // 删除交易记录
   delete: (id: number) =>
-    request.delete(`/api/life/transactions/${id}/`),
+    request.delete(`/life/transactions/${id}/`),
   
   // 获取分类列表
   getCategories: (type?: 'income' | 'expense') =>
-    request.get('/api/life/categories/', { params: { type } }),
+    request.get('/life/categories/', { params: { type } }),
   
   // 创建分类
   createCategory: (data: Partial<Category>) =>
-    request.post('/api/life/categories/', data),
+    request.post('/life/categories/', data),
   
   // 获取财务汇总
   getSummary: (params?: { period?: 'month' | 'year'; start_date?: string; end_date?: string }) =>
-    request.get('/api/life/transactions/summary/', { params }),
+    request.get('/life/transactions/summary/', { params }),
   
   // 导出数据
   export: (params: { format: string; start_date?: string; end_date?: string }) =>
-    request.get('/api/life/transactions/export/', { 
+    request.get('/life/transactions/export/', { 
       params,
       responseType: 'blob'
     }),
   
   // 同步支付宝/微信账单
   syncBills: (platform: 'alipay' | 'wechat') =>
-    request.post(`/api/life/transactions/sync-${platform}/`)
+    request.post(`/life/transactions/sync-${platform}/`)
 }
 
 // 物品管理相关接口
@@ -239,25 +239,25 @@ export const itemApi = {
     location?: string; 
     expiring_soon?: boolean;
   }) =>
-    request.get('/api/life/items/', { params }),
+    request.get('/life/items/', { params }),
   
   // 添加物品
   create: (data: Partial<Item>) =>
-    request.post('/api/life/items/', data),
+    request.post('/life/items/', data),
   
   // 更新物品
   update: (id: number, data: Partial<Item>) =>
-    request.put(`/api/life/items/${id}/`, data),
+    request.put(`/life/items/${id}/`, data),
   
   // 删除物品
   delete: (id: number) =>
-    request.delete(`/api/life/items/${id}/`),
+    request.delete(`/life/items/${id}/`),
   
   // 获取即将过期的物品
   getExpiringSoon: () =>
-    request.get('/api/life/items/expiring-soon/'),
+    request.get('/life/items/expiring-soon/'),
   
   // 获取分类统计
   getCategoryStats: () =>
-    request.get('/api/life/items/category-stats/')
+    request.get('/life/items/category-stats/')
 }
