@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "personal-app-backend"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "Django==4.2.7",
+    "djangorestframework==3.14.0",
+    "djangorestframework-simplejwt==5.3.0",
+    "django-cors-headers==4.3.1",
+    "psycopg2-binary==2.9.9",
+    "redis==5.0.1",
+    "celery==5.3.4",
+    "Pillow==10.1.0",
+    "python-decouple==3.8",
+    "django-filter==23.3",
+    "drf-spectacular==0.26.5",
+    "gunicorn==21.2.0",
+    "dj-database-url==2.1.0",
+    "django-redis==5.4.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-django",
+    "black",
+    "flake8"
+]
